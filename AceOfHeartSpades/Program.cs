@@ -1,6 +1,6 @@
 ﻿namespace AceOfHeartSpades {
     internal class Program {
-        static void Spiel(Stack<Karte> karten) {
+        static void Spiel(Stack<Karte> karten) {           
             Hand bank = new Hand();
             Hand spieler = new Hand();
             bool running = true;
@@ -11,15 +11,20 @@
             spieler.karten.Add(karten.Pop());
             spieler.karten.Add(karten.Pop());
             while (running) {
-                if (spieler.Wert() > 21 || spieler.Wert() == 21) {
+                Console.Clear();
+                if (spieler.Wert() > 21) {
                     spielerZieht = false;
                     running = false;
+                }
+                else if (spieler.Wert() == 21) {
+                    spielerZieht = false;
                 }
                 Console.WriteLine($"Die Bank hat: {bank.karten[0].PrintKarte()} + verdeckte Karte");
                 Console.WriteLine($"{bank.karten[0].Wertigkeit()} Punkte + X");
                 Console.WriteLine();
                 Console.WriteLine($"Du hast: {spieler.PrintHand()} ");
                 Console.WriteLine($"{spieler.Wert()} Punkte");
+                Console.WriteLine("");
                 if (spielerZieht) {
                     Console.WriteLine("Möchtest Du:\n1) Neue Karte\n2) Keine neue Karte");
                     antwort = Console.ReadLine();
@@ -33,39 +38,44 @@
                         Console.WriteLine("Bitte 1 oder 2 eingeben!!!");
                     }
                 }
-                if (spielerZieht == false){
-                    if(bank.Wert() < 16) {
+                if (spielerZieht == false) {
+                    if (bank.Wert() < 16) {
                         bank.karten.Add(karten.Pop());
                         Console.WriteLine("Bank zieht eine Karte");
-                        Console.ReadLine();
-                    } else {
+                        Console.Read();
+                    }
+                    else {
                         running = false;
                     }
                 }
             }
             string winner = null;
             int sieger, verlierer;
-            if (spieler.Wert() > 21) {
+            if (spieler.Wert() == bank.Wert() || spieler.Wert() > 21 && bank.Wert() > 21) {
+                winner = "Niemand";
+            }
+            else if (spieler.Wert() > 21) {
                 winner = "Bank";
-                sieger = bank.Wert();
-                verlierer = spieler.Wert();
-            } else if (bank.Wert() > 21) {
+            }
+            else if (bank.Wert() > 21) {
                 winner = "Spieler";
-                sieger = spieler.Wert();
-                verlierer = bank.Wert();
-            } else if (spieler.Wert() == 21) {
+            }
+            else if (spieler.Wert() == 21) {
                 winner = "Spieler";
-                sieger = spieler.Wert();
-                verlierer = bank.Wert();
-            } else if (spieler.Wert() > bank.Wert()) {
+            }
+            else if (spieler.Wert() > bank.Wert()) {
                 winner = "Spieler";
-                sieger = spieler.Wert();
-                verlierer = bank.Wert();
             }
             else {
                 winner = "Bank";
+            }
+            if (winner == "Bank") {
                 sieger = bank.Wert();
                 verlierer = spieler.Wert();
+            }
+            else {
+                sieger = spieler.Wert();
+                verlierer = bank.Wert();
             }
             Console.WriteLine($"Gewonnen hat {winner} mit {sieger} Punkten zu {verlierer}");
             Console.WriteLine($"Die Bank hatte folgende Karten: {bank.PrintHand()}");
@@ -78,7 +88,6 @@
             }
             return karten;
         }
-
         static List<Stack<Karte>> Hochstapler(int zahl, Stack<Karte> stapel) {
             List<Stack<Karte>> ergebnis = new();
             for (int i = 0; i < zahl; i++) {
@@ -86,7 +95,6 @@
             }
             int karten = stapel.Count / zahl;
             int rest = stapel.Count % zahl;
-
             while (stapel.Count != 0) {
                 for (int i = 0; i < zahl; i++) {
                     for (int j = 0; j < karten; j++) {
@@ -131,26 +139,30 @@
             }
             return ergebnis;
         }
-        static void Main(string[] args) {
+        static Stack<Karte> gemischteKarten () {
+            Stack<Karte> stapel = new Stack<Karte>();
             String[] werte = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "Bube", "Dame", "Koenig", "As" };
-            Stack<Karte> stapelA = new();
-
             foreach (string item in werte) {
-                stapelA.Push(new() { Farbe = "Pik", Wert = item });
-                stapelA.Push(new() { Farbe = "Herz", Wert = item });
-                stapelA.Push(new() { Farbe = "Kreuz", Wert = item });
-                stapelA.Push(new() { Farbe = "Karo", Wert = item });
+                stapel.Push(new() { Farbe = "Pik", Wert = item });
+                stapel.Push(new() { Farbe = "Herz", Wert = item });
+                stapel.Push(new() { Farbe = "Kreuz", Wert = item });
+                stapel.Push(new() { Farbe = "Karo", Wert = item });
             }
+            stapel = Mischen(stapel);
+            return stapel;
+        }
+        static void Main(string[] args) {
+            
             bool running = true;
             string auswahl;
+            Stack<Karte> reserve;
             Console.WriteLine("Willkommen zu Black Jack!");
-            while (running) {
+            while (running) {                
                 Console.WriteLine("Bitte wählen Sie aus:\n1) Neues Spiel\nQ/q) Spiel Beenden");
                 auswahl = Console.ReadLine();
                 switch (auswahl) {
                     case "1":
-                    stapelA = Mischen(stapelA);
-                    Spiel(stapelA);
+                    Spiel(gemischteKarten());
                     break;
                     case "q":
                     case "Q":
@@ -160,14 +172,12 @@
                     break;
                 }
             }
-
             //for (int i = 0; i < 13; i++) {
             //    stapelA.Push(stapel1.Pop());
             //    stapelA.Push(stapel2.Pop());
             //    stapelA.Push(stapel3.Pop());
             //    stapelA.Push(stapel4.Pop());
             //}
-
             //stapelA = Tiefstapler(HochStapler(7,stapelA));
             //Karte k1, k2, winner;
             //while (stapel1.Count >= 2) {
@@ -180,7 +190,6 @@
             //    Console.ForegroundColor = ConsoleColor.Gray;
             //    Console.WriteLine("");
             //}
-
             //Console.WriteLine("Stapel 1:");
             //foreach (Karte item in stapel1) {
             //    Console.WriteLine($"Farbe: {item.Farbe} Wert: {item.Wert}");
@@ -222,7 +231,6 @@
             //Console.WriteLine("");
             //foreach (Karte item in stapelA) {
             //    Console.WriteLine($"Farbe: {item.Farbe} Wert: {item.Wert}");
-
             //}
             //Console.WriteLine("");
             //int x = 1;
@@ -234,7 +242,6 @@
             //    Console.WriteLine("");
             //    x++;
             //}
-
         }
     }
 }
