@@ -1,17 +1,84 @@
 ﻿namespace AceOfHeartSpades {
     internal class Program {
-        static Stack<Karte> Spiel (Stack<Karte> karten) {
-            Random random = new Random();           
+        static void Spiel(Stack<Karte> karten) {
+            Hand bank = new Hand();
+            Hand spieler = new Hand();
+            bool running = true;
+            bool spielerZieht = true;
+            string antwort;
+            bank.karten.Add(karten.Pop());
+            bank.karten.Add(karten.Pop());
+            spieler.karten.Add(karten.Pop());
+            spieler.karten.Add(karten.Pop());
+            while (running) {
+                if (spieler.Wert() > 21 || spieler.Wert() == 21) {
+                    spielerZieht = false;
+                    running = false;
+                }
+                Console.WriteLine($"Die Bank hat: {bank.karten[0].PrintKarte()} + verdeckte Karte");
+                Console.WriteLine($"{bank.karten[0].Wertigkeit()} Punkte + X");
+                Console.WriteLine();
+                Console.WriteLine($"Du hast: {spieler.PrintHand()} ");
+                Console.WriteLine($"{spieler.Wert()} Punkte");
+                if (spielerZieht) {
+                    Console.WriteLine("Möchtest Du:\n1) Neue Karte\n2) Keine neue Karte");
+                    antwort = Console.ReadLine();
+                    if (antwort == "1") {
+                        spieler.karten.Add(karten.Pop());
+                    }
+                    else if (antwort == "2") {
+                        spielerZieht = false;
+                    }
+                    else {
+                        Console.WriteLine("Bitte 1 oder 2 eingeben!!!");
+                    }
+                }
+                if (spielerZieht == false){
+                    if(bank.Wert() < 16) {
+                        bank.karten.Add(karten.Pop());
+                        Console.WriteLine("Bank zieht eine Karte");
+                        Console.ReadLine();
+                    } else {
+                        running = false;
+                    }
+                }
+            }
+            string winner = null;
+            int sieger, verlierer;
+            if (spieler.Wert() > 21) {
+                winner = "Bank";
+                sieger = bank.Wert();
+                verlierer = spieler.Wert();
+            } else if (bank.Wert() > 21) {
+                winner = "Spieler";
+                sieger = spieler.Wert();
+                verlierer = bank.Wert();
+            } else if (spieler.Wert() == 21) {
+                winner = "Spieler";
+                sieger = spieler.Wert();
+                verlierer = bank.Wert();
+            } else if (spieler.Wert() > bank.Wert()) {
+                winner = "Spieler";
+                sieger = spieler.Wert();
+                verlierer = bank.Wert();
+            }
+            else {
+                winner = "Bank";
+                sieger = bank.Wert();
+                verlierer = spieler.Wert();
+            }
+            Console.WriteLine($"Gewonnen hat {winner} mit {sieger} Punkten zu {verlierer}");
+            Console.WriteLine($"Die Bank hatte folgende Karten: {bank.PrintHand()}");
+        }
+        static Stack<Karte> Mischen(Stack<Karte> karten) {
+            Random random = new Random();
             for (int i = 0; i < 100; i++) {
-                int x =random.Next(1,10);
+                int x = random.Next(1, 10);
                 karten = Tiefstapler(Hochstapler(x, karten));
             }
-            foreach (Karte karte in karten) {
-                    Console.WriteLine($"Farbe: {karte.Farbe} Wert: {karte.Wert}");
-                }    
             return karten;
-            }
-        
+        }
+
         static List<Stack<Karte>> Hochstapler(int zahl, Stack<Karte> stapel) {
             List<Stack<Karte>> ergebnis = new();
             for (int i = 0; i < zahl; i++) {
@@ -69,9 +136,9 @@
             Stack<Karte> stapelA = new();
 
             foreach (string item in werte) {
-                stapelA.Push(new() { Farbe = "Pik", Wert = item });           
-                stapelA.Push(new() { Farbe = "Herz", Wert = item });         
-                stapelA.Push(new() { Farbe = "Kreuz", Wert = item });         
+                stapelA.Push(new() { Farbe = "Pik", Wert = item });
+                stapelA.Push(new() { Farbe = "Herz", Wert = item });
+                stapelA.Push(new() { Farbe = "Kreuz", Wert = item });
                 stapelA.Push(new() { Farbe = "Karo", Wert = item });
             }
             bool running = true;
@@ -82,7 +149,8 @@
                 auswahl = Console.ReadLine();
                 switch (auswahl) {
                     case "1":
-                    stapelA = Spiel(stapelA);
+                    stapelA = Mischen(stapelA);
+                    Spiel(stapelA);
                     break;
                     case "q":
                     case "Q":

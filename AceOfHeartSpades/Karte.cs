@@ -2,6 +2,9 @@
     internal class Karte {
         public string Farbe { get; set; }
         public string Wert { get; set; }
+        public String PrintKarte() {
+            return this.Farbe+" "+ this.Wert;
+        }
         public int Farbwert () {
             int ergebnis = 0;
             switch (this.Farbe) {
@@ -56,16 +59,16 @@
                 ergebnis = 10;
                 break;
                 case "Bube":
-                ergebnis = 11;
+                ergebnis = 10;
                 break;
                 case "Dame":
-                ergebnis = 12;
+                ergebnis = 10;
                 break;
                 case "Koenig":
-                ergebnis = 13;
+                ergebnis = 10;
                 break;
                 case "As":
-                ergebnis = 14;
+                ergebnis = 11;
                 break;
                 default:
                 break;
